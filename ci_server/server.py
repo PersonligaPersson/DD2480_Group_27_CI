@@ -6,20 +6,22 @@ class CIServer(BaseHTTPRequestHandler):
     TODO: implement the CI server, this is just a placeholder.
     """
 
-    def do_GET(self):
+    def do_get(self):
         if self.path == "/":
             self.path = "../static/ci_server/index.html"
         try:
             file = open(self.path[1:]).read()
             self.send_response(200)
-        except:
+        except FileNotFoundError:
             file = "File not found"
             self.send_response(404)
+
         self.end_headers()
         self.wfile.write(bytes(file, "utf8"))
+        file.close() # Remember to close files.
         # TODO: implement logic for serving files here
 
-    def do_POST(self):
+    def do_post(self):
         # TODO: implement CI logic here
         self.send_response(404)
         self.end_headers()
