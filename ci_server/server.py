@@ -12,9 +12,10 @@ class CIServer(BaseHTTPRequestHandler):
         try:
             file = open(self.path[1:]).read()
             self.send_response(200)
-        except:
+        except FileNotFoundError:
             file = "File not found"
             self.send_response(404)
+
         self.end_headers()
         self.wfile.write(bytes(file, "utf8"))
         # TODO: implement logic for serving files here

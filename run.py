@@ -1,5 +1,5 @@
-from ci_server import CIServer
 from http.server import HTTPServer
+from ci_server import CIServer
 
 
 def main():
