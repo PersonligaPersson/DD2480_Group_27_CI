@@ -1,18 +1,18 @@
 from http.server import BaseHTTPRequestHandler
 import subprocess # subprocess
 
-"""
-The purpose of this function is to trigger a shell script that lints the
-code in the project.
-Note: This should be update so that it runs the linting process on the
-correct code. As it is it will lint all py files.
 
-A shellscript must be explicitly set to executable using the chmod command.
-Example: chmod +x ./runLint.sh
-"""
+# The purpose of this function is to trigger a shell script that lints the
+# code in the project.
+# Note: This should be update so that it runs the linting process on the
+# correct code. As it is it will lint all py files.
+
+# A shellscript must be explicitly set to executable using the chmod command.
+# Example: chmod +x ./runLint.sh
 def run_lint():
     runLintPath = "../shellscripts/runLint.sh"
-    subprocess.run([runLintPath, ""], shell=True)
+    proc = subprocess.run([runLintPath, ""], shell=True, check=True)
+    return proc.stdout
 
 class CIServer(BaseHTTPRequestHandler):
     """
