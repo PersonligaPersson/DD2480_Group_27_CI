@@ -20,7 +20,7 @@ class CIServer:
     def __init__(self, address, port):
         # closure that will instantiate a instance a CIServerHandler for us.
         def handler_fn(*args):
-            return CIServerHandler(self.update_commit_status, *args)
+            return CIServerHandler(self.update_commit_status, self.make_log_title, self.make_log, *args)
 
         self.handler = handler_fn
         self.address = address
