@@ -9,6 +9,8 @@ import json
 NO_ERROR = 0
 ERROR = 1
 
+PATH_TO_CLONED_BRANCHES = "branches"
+
 # The purpose of this function is to trigger a shell script that lints the
 # code in the project.
 # Note: This should be update so that it runs the linting process on the
@@ -46,7 +48,7 @@ class CIServer(BaseHTTPRequestHandler):
             return ERROR
         # TODO define a secret token when creating the webhooks
         local_signature = hmac.new(
-            os.getenv("secretToken").encode(),
+            os.getenv("ABC").encode(),
             msg=post_data,
             digestmod=hashlib.sha256
         ).hexdigest()
@@ -57,8 +59,9 @@ class CIServer(BaseHTTPRequestHandler):
         # retrieve clone url and branch name
         clone_url = data["repository"]["clone_url"]
         branch = data["ref"].split("/")[-1]
+        commit_id = data["commits"][0]["id"]
         return os.system(
-            f"cd branches; git clone --single-branch -b {branch} {clone_url}"
+            f"git clone --single-branch --depth 1 -b {branch} {clone_url} {PATH_TO_CLONED_BRANCHES}/{commit_id}"
         )
 
     # send a custom response given a html code and a specific message
@@ -89,6 +92,12 @@ class CIServer(BaseHTTPRequestHandler):
             print("BRANCH SUCCESSFULLY CLONED")
             print("--------------------------------------------------")
             return NO_ERROR
+
+    # remove the cloned branch of the given commit id
+    def remove_cloned_branch(self, commit_id):
+        return os.system(
+            f"rm -rf {PATH_TO_CLONED_BRANCHES}/{commit_id}"
+        )
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
