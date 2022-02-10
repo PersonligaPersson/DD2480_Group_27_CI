@@ -1,3 +1,5 @@
 venv/
 past_builds/
 __pycache__
+branches/
+Build*.txt

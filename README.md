@@ -15,6 +15,13 @@ The flow chart below illustrates the interaction between Github and the CI serve
 
 # Getting Started
 
+## Linting the application
+In order to lint the application, run the command:
+```
+pylint $(git ls-files '*.py') --rcfile=./config/.pylintrc
+```
+This lints the project using our custom rc-file.
+
 ## Virtual environment
 Create a virtual environment that the application can be run inside using the command,
 
