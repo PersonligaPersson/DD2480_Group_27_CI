@@ -1,7 +1,7 @@
 [MASTER]
 
-# missing-module-docstring, fixme, missing-function-docstring, consider-using-with, unspecified-encoding, attribute-defined-outside-init, invalid-name
-disable = C0114, W0511, C0116, R1732, W1514, W0201, C0103, no-else-return, no-self-use, line-too-long
+# missing-module-docstring, fixme, missing-function-docstring, consider-using-with, unspecified-encoding, attribute-defined-outside-init, invalid-nameh
+disable = C0114, W0511, C0116, R1732, W1514, W0201, C0103, no-else-return, no-self-use, line-too-long, E0401
 
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
