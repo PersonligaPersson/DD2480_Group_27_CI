@@ -22,9 +22,12 @@ class CIServerHandler(BaseHTTPRequestHandler):
     Custom HTTP handler that handles post request from webhook on Github.
     """
 
-    def __init__(self, update_commit_status_fn, *args):
+    def __init__(self, update_commit_status_fn, make_log_title_fn, make_log_fn, *args):
         # We assign the function that updates the commit statuses to a class member.
         self.update_commit_status = update_commit_status_fn
+        self.make_log_title = make_log_title_fn
+        self.make_log = make_log_fn
+
         super().__init__(*args)
 
     # GET/POST handler
@@ -201,34 +204,4 @@ class CIServerHandler(BaseHTTPRequestHandler):
         sys.stdout = out # Restore original output stream
         return results
 
-    # LOGGING
-
-    # The purpose of this function is to generate a unique identifier that serves
-    # as the build log name.
-    # Note: This would fail if the number of total builds would reach maxint.
-    def make_log_title(self):
-        tob = time.localtime()
-        bString = "X"
-        bDatPath = "logfiles/buildData.dat"
-        newBuildNum = -1
-
-        # Format the new build number.
-        with open(bDatPath) as f:
-            newBuildNum = int(f.read()[:-1]) + 1
-
-        # Generate a build log string.
-        bString = f"Build_{newBuildNum}_{tob.tm_year}_{tob.tm_mon}_{tob.tm_mday}_{tob.tm_hour}.txt"
-
-        with open(bDatPath, "w") as f:
-            f.truncate(0)
-            f.write(str(newBuildNum) + "\n")
-
-        return bString
-
-    # The purpose of this function is to log the output of the tests and the linting.
-    # Creates a new .txt file with the output of the linter and the tests.
-    def make_log(self, lint_output, pytest_output):
-        with open(f"logfiles/{self.make_log_title()}", "w") as f:
-            f.write(
-                f"=== LINT OUTPUT ===\n{lint_output}\n\n=== PYTEST OUTPUT ===\n{pytest_output}\n"
-            )
+    
