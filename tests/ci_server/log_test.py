@@ -1,9 +1,7 @@
 import os
-import pytest
 from ci_server.server import CIServer
-import re
 
-server = CIServer("localhost", 8080)
+server = CIServer("localhost", 8081)
 
 # ------------------------------------
 # Tests for make_log_title()
