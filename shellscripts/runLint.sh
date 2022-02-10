@@ -1,2 +1,3 @@
+#!/bin/bash
 # Lints all .py files in the project.
-pylint $(git ls-files '*.py') --rcfile=../config/.pylintrc
+pylint $(find "branches/$1" -type f -name "*.py") --rcfile=config/.pylintrc
