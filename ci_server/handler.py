@@ -30,7 +30,6 @@ class CIServerHandler(BaseHTTPRequestHandler):
     # GET/POST handler
 
     def do_GET(self):
-        self.run_tests("9aa6415af891509084beb8594f6615ccc9660180")
         if self.path == "/":
             self.path = "../static/ci_server/index.html"
         try:
