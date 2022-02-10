@@ -1,3 +1,5 @@
+import sys
+from io import StringIO
 import subprocess
 import hmac
 import hashlib
@@ -6,8 +8,6 @@ import os
 import json
 from http.server import BaseHTTPRequestHandler
 import pytest
-import sys
-from io import StringIO 
 
 # macros used for error status
 NO_ERROR = 0
@@ -148,7 +148,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
 
     # The purpose of this function is execute all tests in /test/ci_server.
     def run_tests(self):
-        # In order to get the test results as a string, the output stream is 
+        # In order to get the test results as a string, the output stream is
         # temporarily redirected.
         out = sys.stdout # Save original output stream
         sys.stdout = StringIO()
