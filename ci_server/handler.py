@@ -1,6 +1,5 @@
 import sys
 from io import StringIO
-import subprocess
 import hmac
 import hashlib
 import time
