@@ -20,7 +20,7 @@ class CIServer:
     def __init__(self, address, port):
         # closure that will instantiate a instance a CIServerHandler for us.
         def handler_fn(*args):
-            return CIServerHandler(self.update_commit_status, *args)
+            return CIServerHandler(self.update_commit_status, self.make_log_title, self.make_log, *args)
 
         self.handler = handler_fn
         self.address = address
@@ -36,11 +36,10 @@ class CIServer:
             print("\nclosing server...")
             httpd.server_close()
 
-    def update_commit_status(self, repo, sha, status):
-        load_dotenv()
+    def update_commit_status(self, url, sha, status):
         TOKEN = os.getenv("GITHUB_TOKEN")
         HEADERS = {"Authorization": "token " + TOKEN}
-        URL = "https://api.github.com/repos/" + repo + "/statuses/" + sha
+        URL = url + sha
 
         statusString = "success"
         if not status:
