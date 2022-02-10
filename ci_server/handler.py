@@ -135,10 +135,10 @@ class CIServerHandler(BaseHTTPRequestHandler):
 
     # A shellscript must be explicitly set to executable using the chmod command.
     # Example: chmod +x ./runLint.sh
-    def run_lint(self):
-        runLintPath = "../shellscripts/runLint.sh"
-        proc = subprocess.run([runLintPath, ""], shell=True, check=True)
-        return proc.stdout
+    def run_lint(self, path):
+        runLintPath = "shellscripts/runLint.sh"
+        proc = subprocess.check_output([f"{runLintPath} {path}"], shell=True)
+        return proc.decode("utf-8")
         # verify the signature of the message
 
     # LOGGING
@@ -149,7 +149,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
     def make_log_title(self):
         tob = time.localtime()
         bString = "X"
-        bDatPath = "../logfiles/buildData.dat"
+        bDatPath = "logfiles/buildData.dat"
         newBuildNum = -1
 
         # Format the new build number.
@@ -168,7 +168,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
     # The purpose of this function is to log the output of the tests and the linting.
     # Creates a new .txt file with the output of the linter and the tests.
     def make_log(self, lint_output, pytest_output):
-        with open(f"../logfiles/{self.make_log_title()}", "w") as f:
+        with open(f"logfiles/{self.make_log_title()}", "w") as f:
             f.write(
                 f"=== LINT OUTPUT ===\n{lint_output}\n\n=== PYTEST OUTPUT ===\n{pytest_output}\n"
             )
