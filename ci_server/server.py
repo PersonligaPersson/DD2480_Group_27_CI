@@ -4,12 +4,41 @@ import hmac
 import hashlib
 import os
 import json
+import time
 
 # macros used for error status
 NO_ERROR = 0
 ERROR = 1
 
 PATH_TO_CLONED_BRANCHES = "branches"
+
+# The purpose of this function is to generate a unique identifier that serves
+# as the build log name.
+# Note: This would fail if the number of total builds would reach maxint.
+def make_log_title():
+    tob = time.localtime()
+    bString = "X"
+    bDatPath = "../logfiles/buildData.dat"
+    newBuildNum = -1
+
+    # Format the new build number.
+    with open(bDatPath) as f:
+        newBuildNum = int(f.read()[:-1])+1
+
+    # Generate a build log string.
+    bString = f"Build_{newBuildNum}_{tob.tm_year}_{tob.tm_mon}_{tob.tm_mday}_{tob.tm_hour}.txt"
+
+    with open(bDatPath, "w") as f:
+        f.truncate(0)
+        f.write(str(newBuildNum)+'\n')
+
+    return bString
+
+# The purpose of this function is to log the output of the tests and the linting.
+# Creates a new .txt file with the output of the linter and the tests.
+def make_log(lint_output, pytest_output):
+    with open(f"../logfiles/{make_log_title()}", "w") as f:
+        f.write(f"=== LINT OUTPUT ===\n{lint_output}\n\n=== PYTEST OUTPUT ===\n{pytest_output}\n")
 
 # The purpose of this function is to trigger a shell script that lints the
 # code in the project.
