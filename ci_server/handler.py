@@ -7,6 +7,7 @@ import os
 import json
 from http.server import BaseHTTPRequestHandler
 import pytest
+from pprint import pprint
 
 # macros used for error status
 NO_ERROR = 0
@@ -100,11 +101,18 @@ class CIServerHandler(BaseHTTPRequestHandler):
             print("--------------------------------------------------")
         # retrieve the commit id
         commit_id = data["commits"][0]["id"]
+        success = True
         # start running the lint on the branch
         print("--------------------------------------------------")
         print("RUNNING LINT")
         print("--------------------------------------------------")
         lint_result = self.run_lint(commit_id)
+        lint_result_json = open("lint_result.json")
+        # check if it there war errors
+        if len(json.load(lint_result_json)) != 0:
+            success = False
+        lint_result_json.close()
+        os.system("rm lint_result.json")
         print(lint_result)
         print("--------------------------------------------------")
         print("END OF LINT")
@@ -128,6 +136,11 @@ class CIServerHandler(BaseHTTPRequestHandler):
         print("DELETING THE BRANCH")
         print("--------------------------------------------------")
         self.remove_cloned_branch(commit_id)
+        print("--------------------------------------------------")
+        print("UPDATING COMMIT STATUS")
+        print("--------------------------------------------------")  
+        statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")  
+        self.update_commit_status(statuses_url, commit_id, success)
         return NO_ERROR
 
 

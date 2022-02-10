@@ -35,11 +35,10 @@ class CIServer:
             print("\nclosing server...")
             httpd.server_close()
 
-    def update_commit_status(self, repo, sha, status):
-        load_dotenv()
+    def update_commit_status(self, url, sha, status):
         TOKEN = os.getenv("GITHUB_TOKEN")
         HEADERS = {"Authorization": "token " + TOKEN}
-        URL = "https://api.github.com/repos/" + repo + "/statuses/" + sha
+        URL = url + sha
 
         statusString = "success"
         if not status:
