@@ -30,6 +30,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
     # GET/POST handler
 
     def do_GET(self):
+        self.run_tests("9aa6415af891509084beb8594f6615ccc9660180")
         if self.path == "/":
             self.path = "../static/ci_server/index.html"
         try:
@@ -147,12 +148,13 @@ class CIServerHandler(BaseHTTPRequestHandler):
     # EXECUTING TESTS
 
     # The purpose of this function is execute all tests in /test/ci_server.
-    def run_tests(self):
+    def run_tests(self, commit_id):
         # In order to get the test results as a string, the output stream is
         # temporarily redirected.
         out = sys.stdout # Save original output stream
         sys.stdout = StringIO()
-        pytest.main(["tests/ci_server"]) # Run tests
+        path = PATH_TO_CLONED_BRANCHES + "/" + commit_id + "/tests/ci_server"
+        pytest.main([path]) # Run tests
         results = sys.stdout.getvalue() # Store the output in variable 'results'
         sys.stdout.close()
         sys.stdout = out # Restore original output stream
