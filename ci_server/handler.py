@@ -1,6 +1,5 @@
 import sys
 from io import StringIO
-import subprocess
 import hmac
 import hashlib
 import time
@@ -8,6 +7,7 @@ import os
 import json
 from http.server import BaseHTTPRequestHandler
 import pytest
+from pprint import pprint
 
 # macros used for error status
 NO_ERROR = 0
@@ -102,7 +102,51 @@ class CIServerHandler(BaseHTTPRequestHandler):
             print("--------------------------------------------------")
             print("BRANCH SUCCESSFULLY CLONED")
             print("--------------------------------------------------")
-            return NO_ERROR
+        # retrieve the commit id
+        commit_id = data["commits"][0]["id"]
+        success = True
+        # start running the lint on the branch
+        print("--------------------------------------------------")
+        print("RUNNING LINT")
+        print("--------------------------------------------------")
+        lint_result = self.run_lint(commit_id)
+        lint_result_json = open("lint_result.json")
+        # check if it there war errors
+        if len(json.load(lint_result_json)) != 0:
+            success = False
+        lint_result_json.close()
+        os.system("rm lint_result.json")
+        print(lint_result)
+        print("--------------------------------------------------")
+        print("END OF LINT")
+        print("--------------------------------------------------")
+        # start running the tests on the branch
+        print("--------------------------------------------------")
+        print("RUNNING TESTS")
+        print("--------------------------------------------------")
+        tests_result = self.run_tests(commit_id)
+        print(tests_result)
+        print("--------------------------------------------------")
+        print("END OF TESTS")
+        print("--------------------------------------------------")
+        # create the log file
+        print("--------------------------------------------------")
+        print("CREATING LOG")
+        print("--------------------------------------------------")
+        self.make_log(lint_result, tests_result)
+        # delete the branch since it is not used anymore
+        print("--------------------------------------------------")
+        print("DELETING THE BRANCH")
+        print("--------------------------------------------------")
+        self.remove_cloned_branch(commit_id)
+        print("--------------------------------------------------")
+        print("UPDATING COMMIT STATUS")
+        print("--------------------------------------------------")  
+        statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")  
+        self.update_commit_status(statuses_url, commit_id, success)
+        return NO_ERROR
+
+
 
     # send a custom response given a HTTP code and a specific message
     def send_custom_response(self, code, msg):
@@ -143,9 +187,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
     # Example: chmod +x ./runLint.sh
     def run_lint(self, path):
         runLintPath = "shellscripts/runLint.sh"
-        proc = subprocess.check_output([f"{runLintPath} {path}"], shell=True)
-        return proc.decode("utf-8")
-        # verify the signature of the message
+        return os.popen(f"{runLintPath} {path}").read()
 
     # EXECUTING TESTS
 
