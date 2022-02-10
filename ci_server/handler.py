@@ -96,7 +96,19 @@ class CIServerHandler(BaseHTTPRequestHandler):
             print("--------------------------------------------------")
             print("BRANCH SUCCESSFULLY CLONED")
             print("--------------------------------------------------")
-            return NO_ERROR
+        # start running the lint on the branch
+        print("--------------------------------------------------")
+        print("RUNNING LINT")
+        print("--------------------------------------------------")
+        commit_id = data["commits"][0]["id"]
+        lint_result = self.run_lint(commit_id)
+        print(lint_result)
+        print("--------------------------------------------------")
+        print("END OF LINT")
+        print("--------------------------------------------------")
+        return NO_ERROR
+
+
 
     # send a custom response given a HTTP code and a specific message
     def send_custom_response(self, code, msg):
