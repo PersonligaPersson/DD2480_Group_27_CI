@@ -11,7 +11,7 @@ class CIServer:
     CIServer
 
     Attributes:
-        handler: A function that returns a CIServerHandler.
+        handler: A function that                                                                                     returns a CIServerHandler.
         address: The address that the server runs on.
         port:  The port that the server runs on.
     """
