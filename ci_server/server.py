@@ -1,7 +1,16 @@
 from http.server import BaseHTTPRequestHandler
 import subprocess # subprocess
-
+import hmac
+import hashlib
+import os
+import json
 import time
+
+# macros used for error status
+NO_ERROR = 0
+ERROR = 1
+
+PATH_TO_CLONED_BRANCHES = "branches"
 
 # The purpose of this function is to generate a unique identifier that serves
 # as the build log name.
@@ -61,7 +70,84 @@ class CIServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes(file, "utf8"))
         # TODO: implement logic for serving files here
 
-    def do_POST(self):
-        # TODO: implement CI logic here
-        self.send_response(404)
+    # verify the signature of the message
+    def verify_signature(self, post_data):
+        sha_name, signature = self.headers['X-Hub-Signature-256'].split('=')
+        if sha_name != 'sha256':
+            return ERROR
+        # TODO define a secret token when creating the webhooks
+        local_signature = hmac.new(
+            os.getenv("secretToken").encode(),
+            msg=post_data,
+            digestmod=hashlib.sha256
+        ).hexdigest()
+        return not hmac.compare_digest(local_signature, signature)
+
+    # clone the branch related to the push event
+    def clone_branch(self, data):
+        # retrieve clone url and branch name
+        clone_url = data["repository"]["clone_url"]
+        branch = data["ref"].split("/")[-1]
+        commit_id = data["commits"][0]["id"]
+        return os.system(
+            f"git clone --single-branch --depth 1 -b {branch} {clone_url} {PATH_TO_CLONED_BRANCHES}/{commit_id}"
+        )
+
+    # send a custom response given a html code and a specific message
+    def send_custom_response(self, code, msg):
+        print("--------------------------------------------------")
+        print("SENDING RESPONSE")
+        self.send_response(code)
+        self.send_header("Content-Type", "text/plain")
+        self.send_header("Content-Length", str(len(msg)))
+        self.wfile.write(msg.encode("utf-8"))
         self.end_headers()
+        print("--------------------------------------------------")
+        print("\n")
+
+    # handle push event
+    def push_handler(self, data):
+        # clone specific branch
+        print("--------------------------------------------------")
+        print("CLONING BRANCH")
+        print("--------------------------------------------------")
+        if self.clone_branch(data):
+            print("--------------------------------------------------")
+            print("COULDN'T CLONE THE BRANCH")
+            self.send_custom_response(500, "Couldn't clone the branch")
+            return ERROR
+        else:
+            print("--------------------------------------------------")
+            print("BRANCH SUCCESSFULLY CLONED")
+            print("--------------------------------------------------")
+            return NO_ERROR
+
+    # remove the cloned branch of the given commit id
+    def remove_cloned_branch(self, commit_id):
+        return os.system(
+            f"rm -rf {PATH_TO_CLONED_BRANCHES}/{commit_id}"
+        )
+
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
+        post_data = self.rfile.read(content_length) # <--- Gets the data itself
+        data = json.loads(post_data)
+
+        # verify signature
+        if self.verify_signature(post_data):
+            print("--------------------------------------------------")
+            print("WRONG SIGNATURE")
+            self.send_custom_response(401, "Wrong signature")
+            return
+        else:
+            print("--------------------------------------------------")
+            print("SIGNATURE VERIFIED")
+            print("--------------------------------------------------")
+
+        # handle push event
+        if self.headers["X-GitHub-Event"] == "push":
+            if self.push_handler(data):
+                return
+
+        # send success message
+        self.send_custom_response(200, "SUCCESS")
