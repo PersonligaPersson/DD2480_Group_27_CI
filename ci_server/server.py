@@ -53,7 +53,7 @@ class CIServer(BaseHTTPRequestHandler):
         return not hmac.compare_digest(local_signature, signature)
 
     # clone the branch related to the push event
-    def clone_branch(self, data):
+    def clone_branch(data):
         # retrieve clone url and branch name
         clone_url = data["repository"]["clone_url"]
         branch = data["ref"].split("/")[-1]
