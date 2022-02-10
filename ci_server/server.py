@@ -1,5 +1,26 @@
 from http.server import BaseHTTPRequestHandler
-from github import Github
+import requests
+import json
+import os
+from dotenv import load_dotenv
+
+def update_commit_status(repo, sha, status):
+    load_dotenv()
+    TOKEN = os.getenv('GITHUB_TOKEN')
+    
+    HEADERS = {'Authorization': 'token ' + TOKEN}
+    URL = 'https://api.github.com/repos/' + repo + '/statuses/' + sha  
+
+    statusString = 'success'
+    if (not status):
+        statusString = 'failure'
+
+    DATA = {
+        'state': statusString
+    }
+    response = requests.post(url=URL, data=json.dumps(DATA), headers=HEADERS)
+    print(response)
+
 
 class CIServer(BaseHTTPRequestHandler):
     """
@@ -23,14 +44,4 @@ class CIServer(BaseHTTPRequestHandler):
         # TODO: implement CI logic here
         self.send_response(404)
         self.end_headers()
-
-    def update_commit_status(self, branch_name, build_result):
-            github = Github("dummyContributor", "dd2480dd2480") # Dummy Github user
-            repo = github.get_repo("PersonligaPersson/DD2480_Group_27_CI")
-            branch = repo.get_branch(branch=branch_name)        
-            head_commit = branch.commit
-            if (build_result):
-                head_commit.state = "sucess"
-            else:
-                head_commit.state = "failure"
-            return branch.commit.state # For debugging
+    
