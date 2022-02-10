@@ -111,7 +111,6 @@ class CIServerHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(msg.encode("utf-8"))
         print("--------------------------------------------------")
-        return
         print("\n")
 
     # CLONING
