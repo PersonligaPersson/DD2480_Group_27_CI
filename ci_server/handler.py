@@ -105,8 +105,8 @@ class CIServerHandler(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", "text/plain")
         self.send_header("Content-Length", str(len(msg)))
-        self.wfile.write(msg.encode("utf-8"))
         self.end_headers()
+        self.wfile.write(msg.encode("utf-8"))
         print("--------------------------------------------------")
         print("\n")
 
