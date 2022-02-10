@@ -1,6 +1,9 @@
 from http.server import BaseHTTPRequestHandler
 import subprocess # subprocess
-import hmac, hashlib, os, json
+import hmac
+import hashlib 
+import os 
+import json
 
 # macros used for error status
 NO_ERROR = 0
@@ -42,15 +45,22 @@ class CIServer(BaseHTTPRequestHandler):
         if sha_name != 'sha256':
             return ERROR
         # TODO define a secret token when creating the webhooks
-        local_signature = hmac.new(os.getenv("secretToken").encode(), msg=post_data, digestmod=hashlib.sha256).hexdigest()
-        return hmac.compare_digest(local_signature, signature)
+        local_signature = hmac.new(
+            os.getenv("secretToken").encode(), 
+            msg=post_data, 
+            digestmod=hashlib.sha256
+        ).hexdigest()
+        return not hmac.compare_digest(local_signature, signature)
 
     # clone the branch related to the push event
     def clone_branch(self, data):
         # retrieve clone url and branch name
         clone_url = data["repository"]["clone_url"]
         branch = data["ref"].split("/")[-1]
-        return not os.system("cd clonedRepos; git clone --single-branch -b {} {}".format(branch, clone_url))
+        return os.system(
+            "cd branches; git clone --single-branch -b {} {}"
+            .format(branch, clone_url)
+        )
 
     # send a custom response given a html code and a specific message
     def send_custom_response(self, code, msg):
@@ -72,15 +82,14 @@ class CIServer(BaseHTTPRequestHandler):
         print("--------------------------------------------------")
         if self.clone_branch(data):
             print("--------------------------------------------------")
-            print("BRANCH SUCCESSFULLY CLONED")
-            print("--------------------------------------------------")
-        else:
-            print("--------------------------------------------------")
             print("COULDN'T CLONE THE BRANCH")
             self.send_custom_response(500, "Couldn't clone the branch")
             return ERROR
-
-        return NO_ERROR
+        else:
+            print("--------------------------------------------------")
+            print("BRANCH SUCCESSFULLY CLONED")
+            print("--------------------------------------------------")
+            return NO_ERROR
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
