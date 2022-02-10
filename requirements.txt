@@ -92,3 +92,5 @@ wcwidth==0.2.5
 when-changed @ https://github.com/joh/when-changed/archive/master.zip
 wrapt==1.12.1
 xarray==0.16.2
+tomli==1.2.3
+pylint==2.12.2
