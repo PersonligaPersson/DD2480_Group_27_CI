@@ -172,9 +172,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
     # Example: chmod +x ./runLint.sh
     def run_lint(self, path):
         runLintPath = "shellscripts/runLint.sh"
-        proc = subprocess.check_output([f"{runLintPath} {path}"], shell=True)
-        return proc.decode("utf-8")
-        # verify the signature of the message
+        return os.popen(f"{runLintPath} {path}").read()
 
     # EXECUTING TESTS
 
