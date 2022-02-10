@@ -2,6 +2,8 @@ import subprocess
 import hmac
 import hashlib
 import time
+import os
+import json
 from http.server import BaseHTTPRequestHandler
 
 # macros used for error status
