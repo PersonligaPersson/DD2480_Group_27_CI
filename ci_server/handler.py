@@ -53,6 +53,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
         # verify signature
         if self.verify_signature(post_data):
             print("--------------------------------------------------")
+            return
             print("WRONG SIGNATURE")
             self.send_custom_response(401, "Wrong signature")
             return
