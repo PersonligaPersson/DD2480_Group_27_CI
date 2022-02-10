@@ -48,7 +48,7 @@ class CIServer(BaseHTTPRequestHandler):
             return ERROR
         # TODO define a secret token when creating the webhooks
         local_signature = hmac.new(
-            os.getenv("ABC").encode(),
+            os.getenv("secretToken").encode(),
             msg=post_data,
             digestmod=hashlib.sha256
         ).hexdigest()
