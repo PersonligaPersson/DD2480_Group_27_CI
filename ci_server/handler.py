@@ -99,16 +99,36 @@ class CIServerHandler(BaseHTTPRequestHandler):
             print("--------------------------------------------------")
             print("BRANCH SUCCESSFULLY CLONED")
             print("--------------------------------------------------")
+        # retrieve the commit id
+        commit_id = data["commits"][0]["id"]
         # start running the lint on the branch
         print("--------------------------------------------------")
         print("RUNNING LINT")
         print("--------------------------------------------------")
-        commit_id = data["commits"][0]["id"]
         lint_result = self.run_lint(commit_id)
         print(lint_result)
         print("--------------------------------------------------")
         print("END OF LINT")
         print("--------------------------------------------------")
+        # start running the tests on the branch
+        print("--------------------------------------------------")
+        print("RUNNING TESTS")
+        print("--------------------------------------------------")
+        tests_result = self.run_tests(commit_id)
+        print(tests_result)
+        print("--------------------------------------------------")
+        print("END OF TESTS")
+        print("--------------------------------------------------")
+        # create the log file
+        print("--------------------------------------------------")
+        print("CREATING LOG")
+        print("--------------------------------------------------")
+        self.make_log(lint_result, tests_result)
+        # delete the branch since it is not used anymore
+        print("--------------------------------------------------")
+        print("DELETING THE BRANCH")
+        print("--------------------------------------------------")
+        self.remove_cloned_branch(commit_id)
         return NO_ERROR
 
 
