@@ -1,3 +1,5 @@
+import sys
+from io import StringIO
 import subprocess
 import hmac
 import hashlib
@@ -5,6 +7,7 @@ import time
 import os
 import json
 from http.server import BaseHTTPRequestHandler
+import pytest
 
 # macros used for error status
 NO_ERROR = 0
@@ -140,6 +143,21 @@ class CIServerHandler(BaseHTTPRequestHandler):
         proc = subprocess.check_output([f"{runLintPath} {path}"], shell=True)
         return proc.decode("utf-8")
         # verify the signature of the message
+
+    # EXECUTING TESTS
+
+    # The purpose of this function is execute all tests in /test/ci_server.
+    def run_tests(self, commit_id):
+        # In order to get the test results as a string, the output stream is
+        # temporarily redirected.
+        out = sys.stdout # Save original output stream
+        sys.stdout = StringIO()
+        path = PATH_TO_CLONED_BRANCHES + "/" + commit_id + "/tests/ci_server"
+        pytest.main([path]) # Run tests
+        results = sys.stdout.getvalue() # Store the output in variable 'results'
+        sys.stdout.close()
+        sys.stdout = out # Restore original output stream
+        return results
 
     # LOGGING
 
