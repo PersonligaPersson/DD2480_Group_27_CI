@@ -119,7 +119,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
         branch = data["ref"].split("/")[-1]
         commit_id = data["commits"][0]["id"]
         return os.system(
-            f"git clone                                                                                       --single-branch --depth 1 -b {branch} {clone_url} {PATH_TO_CLONED_BRANCHES}/{commit_id}"
+            f"git clone --single-branch --depth 1 -b {branch} {clone_url} {PATH_TO_CLONED_BRANCHES}/{commit_id}"
         )
 
     # remove the cloned branch of the given commit id
