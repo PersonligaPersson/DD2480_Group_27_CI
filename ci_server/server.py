@@ -1,8 +1,8 @@
 from http.server import BaseHTTPRequestHandler
 import subprocess # subprocess
 import hmac
-import hashlib 
-import os 
+import hashlib
+import os
 import json
 
 # macros used for error status
@@ -46,8 +46,8 @@ class CIServer(BaseHTTPRequestHandler):
             return ERROR
         # TODO define a secret token when creating the webhooks
         local_signature = hmac.new(
-            os.getenv("secretToken").encode(), 
-            msg=post_data, 
+            os.getenv("secretToken").encode(),
+            msg=post_data,
             digestmod=hashlib.sha256
         ).hexdigest()
         return not hmac.compare_digest(local_signature, signature)
@@ -58,8 +58,7 @@ class CIServer(BaseHTTPRequestHandler):
         clone_url = data["repository"]["clone_url"]
         branch = data["ref"].split("/")[-1]
         return os.system(
-            "cd branches; git clone --single-branch -b {} {}"
-            .format(branch, clone_url)
+            f"cd branches; git clone --single-branch -b {branch} {clone_url}"
         )
 
     # send a custom response given a html code and a specific message
