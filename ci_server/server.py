@@ -5,7 +5,7 @@ import hmac
 import hashlib
 import time
 from http.server import BaseHTTPRequestHandler
-from dotenv import load_dotenv  # pylint: disable=E0401
+from dotenv import load_dotenv
 import requests
 
 
