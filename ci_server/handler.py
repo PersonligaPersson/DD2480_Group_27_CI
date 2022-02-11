@@ -197,4 +197,3 @@ class CIServerHandler(SimpleHTTPRequestHandler):
     def run_tests(self, commit_id):
         path = PATH_TO_CLONED_BRANCHES + "/" + commit_id
         return os.popen(f"python3 -m pytest {path} --json-report").read()
-
