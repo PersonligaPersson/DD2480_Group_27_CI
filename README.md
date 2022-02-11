@@ -67,4 +67,3 @@ We worked in a similar manner to the previous assignment. In other words, we div
 - Max Persson (maxper@kth.se)
 - Bastien Faivre (faivre@kth.se)
 - Amanda Strömdahl (astromd@kth.se)
-
