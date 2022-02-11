@@ -1,5 +1,5 @@
-import pytest
 import sys
+import pytest
 from ci_server.server import CIServer
 
 # FIXTURES

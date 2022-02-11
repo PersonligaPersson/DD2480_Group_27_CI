@@ -39,7 +39,7 @@ class CIServer:
     def update_commit_status(self, url, sha, status, TOKEN):
         HEADERS = {"Authorization": "token " + TOKEN}
         URL = url + sha
-        
+
         statusString = "success"
         if not status:
             statusString = "failure"
