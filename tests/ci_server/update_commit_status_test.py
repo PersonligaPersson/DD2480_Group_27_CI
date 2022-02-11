@@ -1,5 +1,4 @@
 import sys
-from pytest_httpserver import HTTPServer
 import pytest
 from ci_server.server import CIServer
 
