@@ -1,6 +1,5 @@
 from http.server import HTTPServer
 import json
-import os
 import time
 import requests
 from .handler import CIServerHandler
@@ -40,7 +39,7 @@ class CIServer:
     def update_commit_status(self, url, sha, status, TOKEN):
         HEADERS = {"Authorization": "token " + TOKEN}
         URL = url + sha
-        print(URL)
+        
         statusString = "success"
         if not status:
             statusString = "failure"

@@ -1,6 +1,5 @@
-import sys
-from pytest_httpserver import HTTPServer
 import pytest
+import sys
 from ci_server.server import CIServer
 
 # FIXTURES
