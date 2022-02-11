@@ -142,8 +142,8 @@ class CIServerHandler(BaseHTTPRequestHandler):
         self.remove_cloned_branch(commit_id)
         print("--------------------------------------------------")
         print("UPDATING COMMIT STATUS")
-        print("--------------------------------------------------")  
-        statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")  
+        print("--------------------------------------------------")
+        statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")
         print(success)
         self.update_commit_status(statuses_url, commit_id, success)
         return NO_ERROR
@@ -197,5 +197,4 @@ class CIServerHandler(BaseHTTPRequestHandler):
     def run_tests(self, commit_id):
         path = PATH_TO_CLONED_BRANCHES + "/" + commit_id
         return os.popen(f"python3 -m pytest {path} --json-report").read()
-
-    
+        

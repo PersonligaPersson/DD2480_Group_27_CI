@@ -1,9 +1,9 @@
 from http.server import HTTPServer
-from .handler import CIServerHandler
 import json
 import os
 import requests
 import time
+from .handler import CIServerHandler
 
 
 class CIServer:

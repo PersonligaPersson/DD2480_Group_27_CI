@@ -19,7 +19,6 @@ def test_log_title_build_num():
 def test_log_format():
     server.make_log("line_output", "pytest_output")
     folder = os.listdir("logfiles")
-    
     for file_name in folder:
         if (file_name.split(".")[1] != "dat"):
             file = open("logfiles/" + file_name, "r+")
