@@ -144,11 +144,9 @@ class CIServerHandler(BaseHTTPRequestHandler):
         print("UPDATING COMMIT STATUS")
         print("--------------------------------------------------")
         statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")
-        print(success)
-        self.update_commit_status(statuses_url, commit_id, success)
+        TOKEN = os.getenv("GITHUB_TOKEN")
+        self.update_commit_status(statuses_url, commit_id, success, TOKEN)
         return NO_ERROR
-
-
 
     # send a custom response given a HTTP code and a specific message
     def send_custom_response(self, code, msg):
@@ -197,4 +195,4 @@ class CIServerHandler(BaseHTTPRequestHandler):
     def run_tests(self, commit_id):
         path = PATH_TO_CLONED_BRANCHES + "/" + commit_id
         return os.popen(f"python3 -m pytest {path} --json-report").read()
-        
+      
