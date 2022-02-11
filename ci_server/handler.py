@@ -1,12 +1,8 @@
-import sys
-from io import StringIO
+from http.server import BaseHTTPRequestHandler
 import hmac
 import hashlib
 import os
 import json
-from http.server import BaseHTTPRequestHandler
-import pytest
-from pprint import pprint
 
 # macros used for error status
 NO_ERROR = 0
@@ -110,7 +106,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
         print("--------------------------------------------------")
         lint_result = self.run_lint(commit_id)
         lint_result_json = open("lint_result.json")
-        # check if it there war errors
+        # check if there war errors
         if len(json.load(lint_result_json)) != 0:
             success = False
         lint_result_json.close()
@@ -124,6 +120,12 @@ class CIServerHandler(BaseHTTPRequestHandler):
         print("RUNNING TESTS")
         print("--------------------------------------------------")
         tests_result = self.run_tests(commit_id)
+        tests_result_json = open(".report.json")
+        # check if there was errors
+        if json.load(tests_result_json)["exitcode"] != 0:
+            success = False
+        tests_result_json.close()
+        os.system("rm .report.json")
         print(tests_result)
         print("--------------------------------------------------")
         print("END OF TESTS")
@@ -140,8 +142,9 @@ class CIServerHandler(BaseHTTPRequestHandler):
         self.remove_cloned_branch(commit_id)
         print("--------------------------------------------------")
         print("UPDATING COMMIT STATUS")
-        print("--------------------------------------------------")  
-        statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")  
+        print("--------------------------------------------------")
+        statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")
+        print(success)
         self.update_commit_status(statuses_url, commit_id, success)
         return NO_ERROR
 
@@ -193,6 +196,5 @@ class CIServerHandler(BaseHTTPRequestHandler):
     # The purpose of this function is execute all tests in /test/ci_server.
     def run_tests(self, commit_id):
         path = PATH_TO_CLONED_BRANCHES + "/" + commit_id
-        return os.popen(f"python3 -m pytest {path}").read()
-
-    
+        return os.popen(f"python3 -m pytest {path} --json-report").read()
+        

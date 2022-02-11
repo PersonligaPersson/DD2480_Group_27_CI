@@ -1,10 +1,9 @@
+from http.server import HTTPServer
 import json
 import os
-from http.server import HTTPServer
-from dotenv import load_dotenv
+import time
 import requests
 from .handler import CIServerHandler
-import time
 
 
 class CIServer:
@@ -80,4 +79,3 @@ class CIServer:
             f.write(
                 f"=== LINT OUTPUT ===\n{lint_output}\n\n=== PYTEST OUTPUT ===\n{pytest_output}\n"
             )
-
