@@ -135,7 +135,7 @@ class CIServerHandler(SimpleHTTPRequestHandler):
         print("--------------------------------------------------")
         print("CREATING LOG")
         print("--------------------------------------------------")
-        self.make_log(lint_result, tests_result)
+        self.make_log(lint_result, tests_result, commit_id)
         # delete the branch since it is not used anymore
         print("--------------------------------------------------")
         print("DELETING THE BRANCH")
