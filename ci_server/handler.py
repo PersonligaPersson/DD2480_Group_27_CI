@@ -2,7 +2,6 @@ import sys
 from io import StringIO
 import hmac
 import hashlib
-import time
 import os
 import json
 from http.server import BaseHTTPRequestHandler
@@ -193,15 +192,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
 
     # The purpose of this function is execute all tests in /test/ci_server.
     def run_tests(self, commit_id):
-        # In order to get the test results as a string, the output stream is
-        # temporarily redirected.
-        out = sys.stdout # Save original output stream
-        sys.stdout = StringIO()
-        path = PATH_TO_CLONED_BRANCHES + "/" + commit_id + "/tests/ci_server"
-        pytest.main([path]) # Run tests
-        results = sys.stdout.getvalue() # Store the output in variable 'results'
-        sys.stdout.close()
-        sys.stdout = out # Restore original output stream
-        return results
+        path = PATH_TO_CLONED_BRANCHES + "/" + commit_id
+        return os.popen(f"python3 -m pytest {path}").read()
 
     
