@@ -9,15 +9,16 @@ server = CIServer("localhost", 8080)
 # Tests for make_log_title()
 # ------------------------------------
 
-# This test checks that the build nr in the log title is the same as the nr 
-# in buildData.dat.
+"""A test that verifies that the build nr in a generated log title is the same as the build nr in builData.dat.
+"""
 def test_log_title_build_num():
     title = server.make_log_title()
     file = open("logfiles/buildData.dat", "r+")
     counter = file.read()
     assert title.split("_")[1] == counter.replace('\n', '')
 
-# This test checks that the content of every log file follows a certain format.
+"""A test that verifies that the content of every log file follows a certain format.
+"""
 def test_log_format():
     server.make_log("line_output", "pytest_output")
     folder = os.listdir("logfiles")

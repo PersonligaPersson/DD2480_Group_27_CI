@@ -26,7 +26,8 @@ class CIServer:
         self.address = address
         self.port = port
 
-    # run server
+    """Runs the server.
+    """
     def run(self):
         httpd = HTTPServer((self.address, self.port), self.handler)
         try:
@@ -36,6 +37,12 @@ class CIServer:
             print("\nclosing server...")
             httpd.server_close()
 
+
+    """Updates the commit status of a given commit.
+    :param url: github url to the status of a commit in a repo
+    :param sha: identifier of commit
+    :param status: status to assign to the commit
+    """
     def update_commit_status(self, url, sha, status):
         TOKEN = os.getenv("GITHUB_TOKEN")
         HEADERS = {"Authorization": "token " + TOKEN}
@@ -51,9 +58,9 @@ class CIServer:
 
         # LOGGING
 
-    # The purpose of this function is to generate a unique identifier that serves
-    # as the build log name.
-    # Note: This would fail if the number of total builds would reach maxint.
+    """Generates a unique title for a build log file.
+    :returns: title of a build log file
+    """
     def make_log_title(self):
         tob = time.localtime()
         bString = "X"
@@ -73,8 +80,8 @@ class CIServer:
 
         return bString
 
-    # The purpose of this function is to log the output of the tests and the linting.
-    # Creates a new .txt file with the output of the linter and the tests.
+    """Logs output of tests and lint in a build log file.
+    """
     def make_log(self, lint_output, pytest_output):
         with open(f"logfiles/{self.make_log_title()}", "w") as f:
             f.write(
