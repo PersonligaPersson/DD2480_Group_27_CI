@@ -1,4 +1,4 @@
-from http.server import BaseHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
 import hmac
 import hashlib
 import os
@@ -11,7 +11,7 @@ ERROR = 1
 PATH_TO_CLONED_BRANCHES = "branches"
 
 
-class CIServerHandler(BaseHTTPRequestHandler):
+class CIServerHandler(SimpleHTTPRequestHandler):
 
     """
     Custom HTTP handler that handles post request from webhook on Github.
@@ -30,15 +30,17 @@ class CIServerHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/":
             self.path = "../static/ci_server/index.html"
-        try:
-            file = open(self.path[1:]).read()
-            self.send_response(200)
-        except FileNotFoundError:
-            file = "File not found"
-            self.send_response(404)
+            try:
+                file = open(self.path[1:]).read()
+                self.send_response(200)
+            except FileNotFoundError:
+                file = "File not found"
+                self.send_response(404)
 
-        self.end_headers()
-        self.wfile.write(bytes(file, "utf8"))
+            self.end_headers()
+            self.wfile.write(bytes(file, "utf8"))
+        else:
+            super().do_GET()
         # TODO: implement logic for serving files here
 
     def do_POST(self):
@@ -195,4 +197,4 @@ class CIServerHandler(BaseHTTPRequestHandler):
     def run_tests(self, commit_id):
         path = PATH_TO_CLONED_BRANCHES + "/" + commit_id
         return os.popen(f"python3 -m pytest {path} --json-report").read()
-      
+
