@@ -1,5 +1,5 @@
-from ci_server.server import CIServer
 import os
+from ci_server.server import CIServer
 
 server = CIServer("localhost", 8080)
 
