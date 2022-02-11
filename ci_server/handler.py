@@ -41,7 +41,6 @@ class CIServerHandler(SimpleHTTPRequestHandler):
             self.wfile.write(bytes(file, "utf8"))
         else:
             super().do_GET()
-        # TODO: implement logic for serving files here
 
     def do_POST(self):
         content_length = int(
@@ -78,7 +77,6 @@ class CIServerHandler(SimpleHTTPRequestHandler):
         sha_name, signature = self.headers["X-Hub-Signature-256"].split("=")
         if sha_name != "sha256":
             return ERROR
-        # TODO define a secret token when creating the webhooks
         local_signature = hmac.new(
             os.getenv("secretToken").encode(), msg=post_data, digestmod=hashlib.sha256
         ).hexdigest()
