@@ -156,7 +156,6 @@ class CIServerHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(msg)))
         self.end_headers()
         self.wfile.write(msg.encode("utf-8"))
-        return
         print("--------------------------------------------------")
         print("\n")
 
