@@ -1,7 +1,5 @@
-import os
-import pytest
 from ci_server.server import CIServer
-import re
+import os
 
 server = CIServer("localhost", 8080)
 
