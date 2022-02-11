@@ -122,12 +122,11 @@ class CIServerHandler(SimpleHTTPRequestHandler):
         print("RUNNING TESTS")
         print("--------------------------------------------------")
         tests_result = self.run_tests(commit_id)
-        tests_result_json = open(".report.json")
+        tests_result_json = open(f"{PATH_TO_CLONED_BRANCHES}/{commit_id}/.report.json")
         # check if there was errors
         if json.load(tests_result_json)["exitcode"] != 0:
             success = False
         tests_result_json.close()
-        os.system("rm .report.json")
         print(tests_result)
         print("--------------------------------------------------")
         print("END OF TESTS")
@@ -196,4 +195,4 @@ class CIServerHandler(SimpleHTTPRequestHandler):
     # The purpose of this function is execute all tests in /test/ci_server.
     def run_tests(self, commit_id):
         path = PATH_TO_CLONED_BRANCHES + "/" + commit_id
-        return os.popen(f"python3 -m pytest {path} --json-report").read()
+        return os.popen(f"cd {path}; python3 -m pytest --json-report").read()
