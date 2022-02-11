@@ -1,7 +1,5 @@
 import json
-import os
 from http.server import HTTPServer
-from dotenv import load_dotenv
 import requests
 from .handler import CIServerHandler
 import time
@@ -20,7 +18,9 @@ class CIServer:
     def __init__(self, address, port):
         # closure that will instantiate a instance a CIServerHandler for us.
         def handler_fn(*args):
-            return CIServerHandler(self.update_commit_status, self.make_log_title, self.make_log, *args)
+            return CIServerHandler(
+                self.update_commit_status, self.make_log_title, self.make_log, *args
+            )
 
         self.handler = handler_fn
         self.address = address
@@ -36,18 +36,17 @@ class CIServer:
             print("\nclosing server...")
             httpd.server_close()
 
-    def update_commit_status(self, url, sha, status):
-        TOKEN = os.getenv("GITHUB_TOKEN")
+    def update_commit_status(self, url, sha, status, TOKEN):
         HEADERS = {"Authorization": "token " + TOKEN}
         URL = url + sha
-
+        print(URL)
         statusString = "success"
         if not status:
             statusString = "failure"
 
         DATA = {"state": statusString}
         response = requests.post(url=URL, data=json.dumps(DATA), headers=HEADERS)
-        print(response)
+        print(response.json())
 
         # LOGGING
 
@@ -80,4 +79,3 @@ class CIServer:
             f.write(
                 f"=== LINT OUTPUT ===\n{lint_output}\n\n=== PYTEST OUTPUT ===\n{pytest_output}\n"
             )
-

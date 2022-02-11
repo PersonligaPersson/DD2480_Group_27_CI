@@ -141,12 +141,11 @@ class CIServerHandler(BaseHTTPRequestHandler):
         self.remove_cloned_branch(commit_id)
         print("--------------------------------------------------")
         print("UPDATING COMMIT STATUS")
-        print("--------------------------------------------------")  
-        statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")  
-        self.update_commit_status(statuses_url, commit_id, success)
+        print("--------------------------------------------------")
+        statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")
+        TOKEN = os.getenv("GITHUB_TOKEN")
+        self.update_commit_status(statuses_url, commit_id, success, TOKEN)
         return NO_ERROR
-
-
 
     # send a custom response given a HTTP code and a specific message
     def send_custom_response(self, code, msg):
@@ -195,13 +194,12 @@ class CIServerHandler(BaseHTTPRequestHandler):
     def run_tests(self, commit_id):
         # In order to get the test results as a string, the output stream is
         # temporarily redirected.
-        out = sys.stdout # Save original output stream
+        out = sys.stdout  # Save original output stream
         sys.stdout = StringIO()
         path = PATH_TO_CLONED_BRANCHES + "/" + commit_id + "/tests/ci_server"
-        pytest.main([path]) # Run tests
-        results = sys.stdout.getvalue() # Store the output in variable 'results'
+        pytest.main([path])  # Run tests
+        results = sys.stdout.getvalue()  # Store the output in variable 'results'
         sys.stdout.close()
-        sys.stdout = out # Restore original output stream
+        sys.stdout = out  # Restore original output stream
         return results
 
-    
