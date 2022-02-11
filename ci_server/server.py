@@ -1,8 +1,9 @@
-import json
 from http.server import HTTPServer
+import json
+import os
+import time
 import requests
 from .handler import CIServerHandler
-import time
 
 
 class CIServer:
