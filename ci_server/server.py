@@ -74,8 +74,8 @@ class CIServer:
 
     # The purpose of this function is to log the output of the tests and the linting.
     # Creates a new .txt file with the output of the linter and the tests.
-    def make_log(self, lint_output, pytest_output):
+    def make_log(self, lint_output, pytest_output, commit_id):
         with open(f"logfiles/{self.make_log_title()}", "w") as f:
             f.write(
-                f"=== LINT OUTPUT ===\n{lint_output}\n\n=== PYTEST OUTPUT ===\n{pytest_output}\n"
+                f"COMMIT={commit_id}\n=== LINT OUTPUT ===\n{lint_output}\n\n=== PYTEST OUTPUT ===\n{pytest_output}\n"
             )

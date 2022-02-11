@@ -57,6 +57,10 @@ $ python run.py
 
 And the server will start up on `localhost:8080`
 
+## Build Logs
+
+To have access to all build logs, use [this link](https://8972-158-174-209-135.ngrok.io/logfiles)
+
 # Contributions
 
 We worked in a similar manner to the previous assignment. In other words, we divided up the tasks roughly equally among us. All of us contributed to the reviewing of pull requests and we communicated on a daily basis. The communication took place over meetings, our Discord chat and comments in the repo. The meetings helped us make sure the work was running smoothly.
