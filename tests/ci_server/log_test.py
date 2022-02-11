@@ -1,7 +1,7 @@
-import os
-from ci_server.server import CIServer
+# import os
+# from ci_server.server import CIServer
 
-server = CIServer("localhost", 8081)
+# server = CIServer("localhost", 8081)
 
 # ------------------------------------
 # Tests for make_log_title()
