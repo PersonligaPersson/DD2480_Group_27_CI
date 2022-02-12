@@ -3,7 +3,7 @@ from ci_server.server import CIServer
 
 def main():
     """
-    Entrypoint to out program.
+    Entrypoint to our program.
     """
     server = CIServer("localhost", 8080)
     server.run()
