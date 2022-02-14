@@ -2,13 +2,11 @@
 Defines a class for running the server. 
 """
 
-import json
-import os
 from http.server import HTTPServer
-from dotenv import load_dotenv
+import json
+import time
 import requests
 from .handler import CIServerHandler
-import time
 
 class CIServer:
     """
@@ -30,7 +28,9 @@ class CIServer:
             :param *args: arguments from super class.
             :returns: a CIServerHandler object.
             """
-            return CIServerHandler(self.update_commit_status, self.make_log_title, self.make_log, *args)
+            return CIServerHandler(
+                self.update_commit_status, self.make_log_title, self.make_log, *args
+            )
 
         self.handler = handler_fn
         self.address = address
@@ -48,9 +48,7 @@ class CIServer:
             print("\nclosing server...")
             httpd.server_close()
 
-
-    
-    def update_commit_status(self, url, sha, status):
+    def update_commit_status(self, url, sha, status, TOKEN):
         """
         Updates the commit status of a given commit.
 
@@ -58,7 +56,6 @@ class CIServer:
         :param sha: identifier of commit
         :param status: status to assign to the commit
         """
-        TOKEN = os.getenv("GITHUB_TOKEN")
         HEADERS = {"Authorization": "token " + TOKEN}
         URL = url + sha
 
@@ -68,7 +65,7 @@ class CIServer:
 
         DATA = {"state": statusString}
         response = requests.post(url=URL, data=json.dumps(DATA), headers=HEADERS)
-        print(response)
+        print(response.json())
 
         # LOGGING
 
@@ -95,8 +92,8 @@ class CIServer:
             f.write(str(newBuildNum) + "\n")
 
         return bString
-    
-    def make_log(self, lint_output, pytest_output):
+
+    def make_log(self, lint_output, pytest_output, commit_id):
         """
         Logs output of tests and lint in a build log file.
 
@@ -105,6 +102,5 @@ class CIServer:
         """
         with open(f"logfiles/{self.make_log_title()}", "w") as f:
             f.write(
-                f"=== LINT OUTPUT ===\n{lint_output}\n\n=== PYTEST OUTPUT ===\n{pytest_output}\n"
+                f"COMMIT={commit_id}\n=== LINT OUTPUT ===\n{lint_output}\n\n=== PYTEST OUTPUT ===\n{pytest_output}\n"
             )
-

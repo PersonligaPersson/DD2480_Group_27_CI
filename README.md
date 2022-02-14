@@ -9,20 +9,20 @@ The CI server works for Python projects and performs the following tasks every t
 - Informs the project members on the build results by updating commit statuses in the repo
 - Saves the history of past builds, where each build history can be accessed through a separate URL
 
-The flow chart below illustrates the interaction between Github and the CI server:
-
-[insert flow chart]
-
 # Getting Started
 
 ## Linting the application
+
 In order to lint the application, run the command:
+
 ```
 pylint $(git ls-files '*.py') --rcfile=./config/.pylintrc
 ```
+
 This lints the project using our custom rc-file.
 
 ## Virtual environment
+
 Create a virtual environment that the application can be run inside using the command,
 
 ```bash
@@ -32,6 +32,7 @@ $ python -m venv venv
 ## Install Dependencies
 
 To install dependencies run,
+
 ```bash
 $ pip install -r requirements.txt
 ```
@@ -43,6 +44,7 @@ If you add a dependency while developing then you need to issue the command,
 ```bash
 $ pip freeze > requirements.txt
 ```
+
 to add it to the manifest file.
 
 ## Running the application
@@ -52,11 +54,16 @@ To run the application simply issue the command,
 ```bash
 $ python run.py
 ```
+
 And the server will start up on `localhost:8080`
+
+## Build Logs
+
+To have access to all build logs, use [this link](https://8972-158-174-209-135.ngrok.io/logfiles)
 
 # Contributions
 
-TODO
+We worked in a similar manner to the previous assignment. In other words, we divided up the tasks roughly equally among us. All of us contributed to the reviewing of pull requests and we communicated on a daily basis. The communication took place over meetings, our Discord chat and comments in the repo. The meetings helped us make sure the work was running smoothly.
 
 ## Contributors
 

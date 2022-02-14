@@ -2,16 +2,11 @@
 Defines a class for the server handler that uses BaseHTTPRequestHandler. 
 """
 
-import sys
-from io import StringIO
+from http.server import SimpleHTTPRequestHandler
 import hmac
 import hashlib
-import time
 import os
 import json
-from http.server import BaseHTTPRequestHandler
-import pytest
-from pprint import pprint
 
 # macros used for error status
 NO_ERROR = 0
@@ -19,7 +14,8 @@ ERROR = 1
 
 PATH_TO_CLONED_BRANCHES = "branches"
 
-class CIServerHandler(BaseHTTPRequestHandler):
+
+class CIServerHandler(SimpleHTTPRequestHandler):
     """
     Custom HTTP handler that handles requests from the Github webhook.
     """
@@ -45,15 +41,17 @@ class CIServerHandler(BaseHTTPRequestHandler):
         """
         if self.path == "/":
             self.path = "../static/ci_server/index.html"
-        try:
-            file = open(self.path[1:]).read()
-            self.send_response(200)
-        except FileNotFoundError:
-            file = "File not found"
-            self.send_response(404)
+            try:
+                file = open(self.path[1:]).read()
+                self.send_response(200)
+            except FileNotFoundError:
+                file = "File not found"
+                self.send_response(404)
 
-        self.end_headers()
-        self.wfile.write(bytes(file, "utf8"))    
+            self.end_headers()
+            self.wfile.write(bytes(file, "utf8"))
+        else:
+            super().do_GET()
 
     def do_POST(self):
         """
@@ -132,7 +130,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
         print("--------------------------------------------------")
         lint_result = self.run_lint(commit_id)
         lint_result_json = open("lint_result.json")
-        # check if it there war errors
+        # check if there war errors
         if len(json.load(lint_result_json)) != 0:
             success = False
         lint_result_json.close()
@@ -146,6 +144,11 @@ class CIServerHandler(BaseHTTPRequestHandler):
         print("RUNNING TESTS")
         print("--------------------------------------------------")
         tests_result = self.run_tests(commit_id)
+        tests_result_json = open(f"{PATH_TO_CLONED_BRANCHES}/{commit_id}/.report.json")
+        # check if there was errors
+        if json.load(tests_result_json)["exitcode"] != 0:
+            success = False
+        tests_result_json.close()
         print(tests_result)
         print("--------------------------------------------------")
         print("END OF TESTS")
@@ -154,7 +157,7 @@ class CIServerHandler(BaseHTTPRequestHandler):
         print("--------------------------------------------------")
         print("CREATING LOG")
         print("--------------------------------------------------")
-        self.make_log(lint_result, tests_result)
+        self.make_log(lint_result, tests_result, commit_id)
         # delete the branch since it is not used anymore
         print("--------------------------------------------------")
         print("DELETING THE BRANCH")
@@ -162,11 +165,12 @@ class CIServerHandler(BaseHTTPRequestHandler):
         self.remove_cloned_branch(commit_id)
         print("--------------------------------------------------")
         print("UPDATING COMMIT STATUS")
-        print("--------------------------------------------------")  
-        statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")  
-        self.update_commit_status(statuses_url, commit_id, success)
+        print("--------------------------------------------------")
+        statuses_url = data["repository"]["statuses_url"].replace("{sha}", "")
+        TOKEN = os.getenv("GITHUB_TOKEN")
+        self.update_commit_status(statuses_url, commit_id, success, TOKEN)
         return NO_ERROR
-    
+
     def send_custom_response(self, code, msg):
         """
         Sends a custom response. 
@@ -236,15 +240,5 @@ class CIServerHandler(BaseHTTPRequestHandler):
         :param commit_id: id of a commit used to identify the location of the cloned repo.
         :returns: string with the test results.
         """
-        # In order to get the test results as a string, the output stream is
-        # temporarily redirected.
-        out = sys.stdout # Save original output stream
-        sys.stdout = StringIO()
-        path = PATH_TO_CLONED_BRANCHES + "/" + commit_id + "/tests/ci_server"
-        pytest.main([path]) # Run tests
-        results = sys.stdout.getvalue() # Store the output in variable 'results'
-        sys.stdout.close()
-        sys.stdout = out # Restore original output stream
-        return results
-
-    
+        path = PATH_TO_CLONED_BRANCHES + "/" + commit_id
+        return os.popen(f"cd {path}; python3 -m pytest --json-report").read()
