@@ -1,3 +1,7 @@
+"""
+Defines a class for the server handler that uses SimpleHTTPRequestHandler. 
+"""
+
 from http.server import SimpleHTTPRequestHandler
 import hmac
 import hashlib
@@ -12,12 +16,18 @@ PATH_TO_CLONED_BRANCHES = "branches"
 
 
 class CIServerHandler(SimpleHTTPRequestHandler):
-
     """
-    Custom HTTP handler that handles post request from webhook on Github.
+    Custom HTTP handler that handles requests from the Github webhook.
     """
-
+    
     def __init__(self, update_commit_status_fn, make_log_title_fn, make_log_fn, *args):
+        """
+        Initiates functions from CIserver.
+
+        :param update_commit_status_fn: function for updating the commit status.
+        :param make_log_title_fn: function for generating a title for a build log.
+        :param make_log_fn: function for creating a build log.
+        """
         # We assign the function that updates the commit statuses to a class member.
         self.update_commit_status = update_commit_status_fn
         self.make_log_title = make_log_title_fn
@@ -25,9 +35,10 @@ class CIServerHandler(SimpleHTTPRequestHandler):
 
         super().__init__(*args)
 
-    # GET/POST handler
-
     def do_GET(self):
+        """
+        Handles GET requests.
+        """
         if self.path == "/":
             self.path = "../static/ci_server/index.html"
             try:
@@ -43,6 +54,9 @@ class CIServerHandler(SimpleHTTPRequestHandler):
             super().do_GET()
 
     def do_POST(self):
+        """
+        Handles POST requests.
+        """
         content_length = int(
             self.headers["Content-Length"]
         )  # <--- Gets the size of data
@@ -72,8 +86,13 @@ class CIServerHandler(SimpleHTTPRequestHandler):
 
     # REQUEST HELPERS
 
-    # Verify that it is the webhook that is talking to us.
     def verify_signature(self, post_data):
+        """
+        Verifies the signature of the webhook.
+
+        :param post_data: used to sign the message.
+        :returns: True if wrong signature. False otherwise.
+        """
         sha_name, signature = self.headers["X-Hub-Signature-256"].split("=")
         if sha_name != "sha256":
             return ERROR
@@ -82,8 +101,13 @@ class CIServerHandler(SimpleHTTPRequestHandler):
         ).hexdigest()
         return not hmac.compare_digest(local_signature, signature)
 
-    # handle push event
     def push_handler(self, data):
+        """
+        Handles push events in the git repo.
+
+        :param data: POST data.
+        :returns: True if an error is encountered. False otherwise. 
+        """
         # clone specific branch
         print("--------------------------------------------------")
         print("CLONING BRANCH")
@@ -147,8 +171,13 @@ class CIServerHandler(SimpleHTTPRequestHandler):
         self.update_commit_status(statuses_url, commit_id, success, TOKEN)
         return NO_ERROR
 
-    # send a custom response given a HTTP code and a specific message
     def send_custom_response(self, code, msg):
+        """
+        Sends a custom response. 
+
+        :param code: HTTP code.
+        :param msg: message in the response.
+        """
         print("--------------------------------------------------")
         print("SENDING RESPONSE")
         self.send_response(code)
@@ -161,8 +190,13 @@ class CIServerHandler(SimpleHTTPRequestHandler):
 
     # CLONING
 
-    # clone the branch related to the push event
     def clone_branch(self, data):
+        """
+        Clones the branch related to the push event.
+
+        :param data: POST data.
+        :returns: zero if success.
+        """
         # retrieve clone url and branch name
         clone_url = data["repository"]["clone_url"]
         branch = data["ref"].split("/")[-1]
@@ -170,27 +204,41 @@ class CIServerHandler(SimpleHTTPRequestHandler):
         return os.system(
             f"git clone --single-branch --depth 1 -b {branch} {clone_url} {PATH_TO_CLONED_BRANCHES}/{commit_id}"
         )
-
-    # remove the cloned branch of the given commit id
+    
     def remove_cloned_branch(self, commit_id):
+        """
+        Removes the cloned branch of a given commit.
+
+        :param commit_id: identifier of commit.
+        :returns: zero if success.
+        """
         return os.system(f"rm -rf {PATH_TO_CLONED_BRANCHES}/{commit_id}")
 
     # LINTING
 
-    # The purpose of this function is to trigger a shell script that lints the
-    # code in the project.
-    # Note: This should be update so that it runs the linting process on the
-    # correct code. As it is it will lint all py files.
-
-    # A shellscript must be explicitly set to executable using the chmod command.
-    # Example: chmod +x ./runLint.sh
     def run_lint(self, path):
+        """
+        Runs lint on the cloned code using a shellscript.
+
+        :param path: path to the shellscript.
+        :returns: string with the lint results.
+        """
+        # Note: This should be update so that it runs the linting process on the
+        # correct code. As it is it will lint all py files.
+
+        # A shellscript must be explicitly set to executable using the chmod command.
+        # Example: chmod +x ./runLint.sh
         runLintPath = "shellscripts/runLint.sh"
         return os.popen(f"{runLintPath} {path}").read()
 
     # EXECUTING TESTS
 
-    # The purpose of this function is execute all tests in /test/ci_server.
     def run_tests(self, commit_id):
+        """
+        Runs the tests of the cloned code.
+
+        :param commit_id: id of a commit used to identify the location of the cloned repo.
+        :returns: string with the test results.
+        """
         path = PATH_TO_CLONED_BRANCHES + "/" + commit_id
         return os.popen(f"cd {path}; python3 -m pytest --json-report").read()

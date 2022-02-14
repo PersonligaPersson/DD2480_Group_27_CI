@@ -1,23 +1,33 @@
+"""
+Defines a class for running the server. 
+"""
+
 from http.server import HTTPServer
 import json
 import time
 import requests
 from .handler import CIServerHandler
 
-
 class CIServer:
     """
-    CIServer
-
-    Attributes:
-        handler: A function that returns a CIServerHandler.
-        address: The address that the server runs on.
-        port:  The port that the server runs on.
+    Runs server and supplies helper functions for the server handler.
     """
 
     def __init__(self, address, port):
+        """
+        Initiates server variables.
+
+        :param address: the address that the server runs on.
+        :param port: the port that the server runs on.
+        """
         # closure that will instantiate a instance a CIServerHandler for us.
         def handler_fn(*args):
+            """
+            Creates a CIServerHandler
+
+            :param *args: arguments from super class.
+            :returns: a CIServerHandler object.
+            """
             return CIServerHandler(
                 self.update_commit_status, self.make_log_title, self.make_log, *args
             )
@@ -25,9 +35,11 @@ class CIServer:
         self.handler = handler_fn
         self.address = address
         self.port = port
-
-    # run server
+    
     def run(self):
+        """
+        Runs the server.
+        """
         httpd = HTTPServer((self.address, self.port), self.handler)
         try:
             print("serving CI server at %s:%d..." % (self.address, self.port))
@@ -37,6 +49,13 @@ class CIServer:
             httpd.server_close()
 
     def update_commit_status(self, url, sha, status, TOKEN):
+        """
+        Updates the commit status of a given commit.
+
+        :param url: github url to the status of a commit in a repo
+        :param sha: identifier of commit
+        :param status: status to assign to the commit
+        """
         HEADERS = {"Authorization": "token " + TOKEN}
         URL = url + sha
 
@@ -50,10 +69,12 @@ class CIServer:
 
         # LOGGING
 
-    # The purpose of this function is to generate a unique identifier that serves
-    # as the build log name.
-    # Note: This would fail if the number of total builds would reach maxint.
     def make_log_title(self):
+        """
+        Generates a unique title for a build log file.
+
+        :returns: title of a build log file
+        """
         tob = time.localtime()
         bString = "X"
         bDatPath = "logfiles/buildData.dat"
@@ -72,9 +93,13 @@ class CIServer:
 
         return bString
 
-    # The purpose of this function is to log the output of the tests and the linting.
-    # Creates a new .txt file with the output of the linter and the tests.
     def make_log(self, lint_output, pytest_output, commit_id):
+        """
+        Logs output of tests and lint in a build log file.
+
+        :param lint_output: string containing lint results.
+        :param pytest_output: string containing PyTest results.
+        """
         with open(f"logfiles/{self.make_log_title()}", "w") as f:
             f.write(
                 f"COMMIT={commit_id}\n=== LINT OUTPUT ===\n{lint_output}\n\n=== PYTEST OUTPUT ===\n{pytest_output}\n"
