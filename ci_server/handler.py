@@ -1,5 +1,5 @@
 """
-Defines a class for the server handler that uses BaseHTTPRequestHandler. 
+Defines a class for the server handler that uses SimpleHTTPRequestHandler. 
 """
 
 from http.server import SimpleHTTPRequestHandler
